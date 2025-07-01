@@ -1,6 +1,10 @@
 var interval = null;
 const input = document.getElementById('input');
 var amplitude = 50;
+var reset = false;
+var x = 0;
+var y = 0;
+var freq = 0;
 
 // create web audio api elements
 const audioCtx = new AudioContext();
@@ -32,13 +36,17 @@ var height = ctx.canvas.height;
 
 var counter = 0;
 function drawWave() {
-    ctx.clearRect(0, 0, width, height);
-    window.x = 0;
-    window.y = height/2;
-    ctx.moveTo(x, y);
-    ctx.beginPath();
+    clearInterval(interval);
+    if (reset) {
+        ctx.clearRect(0, 0, width, height);
+        window.x = 0;
+        window.y = height/2;
+        ctx.moveTo(x, y);
+        ctx.beginPath();
+    }
 	counter = 0;
     interval = setInterval(line, 20);
+    reset = false;
 }
 
 function line() {
@@ -47,7 +55,7 @@ function line() {
     y = height/2 + (amplitude * Math.sin(2 * Math.PI * freq * x));
     x++;
     counter++;
-    if (counter > 50) {
+    if (counter > width) {
         clearInterval(interval)
     }
 }
@@ -64,15 +72,31 @@ function frequency(pitch) {
     oscillator.start();
     gainNode.gain.value = 0;
 
-    gainNode.gain.setValueAtTime(100, audioCtx.currentTime);
+    gainNode.gain.setValueAtTime(1, audioCtx.currentTime);
     oscillator.frequency.setValueAtTime (pitch, audioCtx.currentTime);
-    gainNode.gain.setValueAtTime(0, audioCtx.currentTime + 1);
+    gainNode.gain.setValueAtTime(0, audioCtx.currentTime + 0.9);
+    oscillator.stop(audioCtx.currentTime + 0.9);
 }
 
 function handle() {
+    reset = true;
     audioCtx.resume();
     gainNode.gain.value = 0;
     var user = String(input.value)
-    frequency(notes.get(user));
+    var noteslist = [];
+    for (i=0; i < user.length; i++) {
+        noteslist.push(notes.get(user.charAt(i)));
+    }
+    let j = 0;
+    repeat = setInterval(() => {
+        if (j < noteslist.length) {
+            frequency(parseInt(noteslist[j]));
+            drawWave();
+        j++
+        } else {
+            clearInterval(repeat)
+        }
+    }, 2000)
+    // frequency(notes.get(user));
     drawWave()
-}
+} 
