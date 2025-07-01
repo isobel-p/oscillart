@@ -5,6 +5,8 @@ var reset = false;
 var x = 0;
 var y = 0;
 var freq = 0;
+var timepernote = 0;
+var length = 0;
 
 // create web audio api elements
 const audioCtx = new AudioContext();
@@ -52,10 +54,10 @@ function drawWave() {
 function line() {
     ctx.lineTo(x, y);
     ctx.stroke();
-    y = height/2 + (amplitude * Math.sin(2 * Math.PI * freq * x));
+    y = height/2 + amplitude * Math.sin(x * 2  * Math.PI * freq * (0.5 * length));
     x++;
     counter++;
-    if (counter > width) {
+    if (counter > (timepernote/20)) {
         clearInterval(interval)
     }
 }
@@ -74,8 +76,8 @@ function frequency(pitch) {
 
     gainNode.gain.setValueAtTime(1, audioCtx.currentTime);
     oscillator.frequency.setValueAtTime (pitch, audioCtx.currentTime);
-    gainNode.gain.setValueAtTime(0, audioCtx.currentTime + 0.9);
-    oscillator.stop(audioCtx.currentTime + 0.9);
+    gainNode.gain.setValueAtTime(0, audioCtx.currentTime + (timepernote/1000)-0.1);
+    oscillator.stop(audioCtx.currentTime + (timepernote/1000)-0.1);
 }
 
 function handle() {
@@ -84,6 +86,8 @@ function handle() {
     gainNode.gain.value = 0;
     var user = String(input.value)
     var noteslist = [];
+    length = user.length;
+    timepernote = (6000 / length);
     for (i=0; i < user.length; i++) {
         noteslist.push(notes.get(user.charAt(i)));
     }
