@@ -30,7 +30,6 @@ notes.set("g", 392)
 notes.set("a", 440)
 notes.set("b", 493.9)
 
-//define canvas variables
 var canvas = document.getElementById("canvas");
 var ctx = canvas.getContext("2d");
 var width = ctx.canvas.width;
@@ -63,7 +62,6 @@ function line() {
 }
 
 function frequency(pitch) {
-    // create Oscillator node
     window.freq = pitch / 10000;
 
     const oscillator = audioCtx.createOscillator();
@@ -101,6 +99,4 @@ function handle() {
             clearInterval(repeat)
         }
     }, 2000)
-    // frequency(notes.get(user));
-    drawWave()
 } 
