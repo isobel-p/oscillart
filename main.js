@@ -1,5 +1,6 @@
 var interval = null;
 const input = document.getElementById('input');
+const colour_picker = document.getElementById("colour");
 var amplitude = 50;
 var reset = false;
 var x = 0;
@@ -52,6 +53,7 @@ function drawWave() {
 
 function line() {
     ctx.lineTo(x, y);
+    ctx.strokeStyle = colour_picker.value;
     ctx.stroke();
     y = height/2 + amplitude * Math.sin(x * 2  * Math.PI * freq * (0.5 * length));
     x++;
