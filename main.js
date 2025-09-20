@@ -1,7 +1,7 @@
 var interval = null;
 const input = document.getElementById('input');
 const colour_picker = document.getElementById("colour");
-var amplitude = 50;
+const volume = document.getElementById('vol-slider')
 var reset = false;
 var x = 0;
 var y = 0;
@@ -55,7 +55,7 @@ function line() {
     ctx.lineTo(x, y);
     ctx.strokeStyle = colour_picker.value;
     ctx.stroke();
-    y = height/2 + amplitude * Math.sin(x * 2  * Math.PI * freq * (0.5 * length));
+    y = height/2 + ((volume.value/100)*40) * Math.sin(x * 2  * Math.PI * freq * (0.5 * length));
     x++;
     counter++;
     if (counter > (timepernote/20)) {
@@ -74,9 +74,10 @@ function frequency(pitch) {
     oscillator.start();
     gainNode.gain.value = 0;
 
-    gainNode.gain.setValueAtTime(1, audioCtx.currentTime);
+    gainNode.gain.setValueAtTime(((volume.value/100)*40), audioCtx.currentTime);
+    setting = setInterval(() => {gainNode.gain.value = ((volume.value/100)*40)}, 1);
     oscillator.frequency.setValueAtTime (pitch, audioCtx.currentTime);
-    gainNode.gain.setValueAtTime(0, audioCtx.currentTime + (timepernote/1000)-0.1);
+    setTimeout(() => {clearInterval(setting); gainNode.gain.value = 0;}, ((timepernote)-10));
     oscillator.stop(audioCtx.currentTime + (timepernote/1000)-0.1);
 }
 
