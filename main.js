@@ -1,6 +1,7 @@
 var interval = null;
 const input = document.getElementById('input');
-const colour_picker = document.getElementById("colour");
+const colour_picker_1 = document.getElementById("colour-1");
+const colour_picker_2 = document.getElementById("colour-2");
 const volume = document.getElementById('vol-slider')
 const recording_toggle = document.getElementById('record');
 
@@ -12,6 +13,7 @@ var timepernote = 0;
 var length = 0;
 var blob, recorder = null;
 var chunks = [];
+var is_recording = false;
 
 // create web audio api elements
 const audioCtx = new AudioContext();
@@ -56,14 +58,21 @@ function drawWave() {
 }
 
 function line() {
-    ctx.lineTo(x, y);
-    ctx.strokeStyle = colour_picker.value;
-    ctx.stroke();
+    const gradient = ctx.createLinearGradient(0,0,width,0);
+    gradient.addColorStop(0, colour_picker_1.value);
+    gradient.addColorStop(1, colour_picker_2.value);
+
     y = height/2 + ((volume.value/100)*40) * Math.sin(x * 2  * Math.PI * freq * (0.5 * length));
+
+    ctx.strokeStyle = gradient;
+    ctx.lineStyle = "solid";
+    ctx.lineTo(x, y);
+    ctx.stroke();
+
     x++;
     counter++;
     if (counter > (timepernote/20)) {
-        clearInterval(interval)
+        clearInterval(interval);
     }
 }
 
@@ -89,24 +98,27 @@ function handle() {
     reset = true;
     audioCtx.resume();
     gainNode.gain.value = 0;
-    var user = String(input.value)
+    var user = String(input.value);
     var noteslist = [];
     length = user.length;
     timepernote = (6000 / length);
-    for (i=0; i < user.length; i++) {
-        noteslist.push(notes.get(user.charAt(i)));
+    for (let i=0; i < user.length; i++) {
+        let note = notes.get(user.charAt(i));
+        if (note !== undefined){
+            noteslist.push(note);
+        }
     }
     let j = 0;
     repeat = setInterval(() => {
         if (j < noteslist.length) {
             frequency(parseInt(noteslist[j]));
             drawWave();
-        j++
+        j++;
         } else {
-            clearInterval(repeat)
+            clearInterval(repeat);
         }
-    }, 2000)
-} 
+    }, timepernote);
+}
 
 function startRecording(){
     const canvasStream = canvas.captureStream(20);
@@ -136,8 +148,9 @@ function startRecording(){
 }
 
 function toggle(){
-    is_recording != is_recording;
+    is_recording = !is_recording;
     if(is_recording){
+        console.log("recording!");
         recording_toggle.innerHTML = "Stop Recording";
         startRecording();
     } else {
